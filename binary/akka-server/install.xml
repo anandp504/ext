@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<project name="akka-server" default="install-akka-server" basedir=".">
+
+    <property name="install.src.dir" value="${basedir}"/>
+    <loadproperties srcfile="${install.src.dir}/${akka.server.src.dir}/install.properties"/>
+
+    <!-- ****************************************************************** -->
+
+    <target name="init"
+            depends="">
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="help"
+            description="Provide help information.">
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="install"
+            depends="">
+        <!-- Installing akka-server -->
+        <mkdir dir="${akka.server.home}"/>
+        <untar src="${basedir}/${akka.server.src.dir}/${akka.server.filename.src}" dest="${install.component.dir}/${akka.server.dir.name}" compression="gzip"/>
+
+        <chmod perm="+x">
+            <fileset dir="${install.component.dir}/${akka.server.dir.name}/bin">
+                <include name="akka"/>
+            </fileset>
+        </chmod>
+
+        <!-- Copy installation scripts. -->
+        <mkdir dir="${tumri.component.home}/install/${akka.server.src.dir}"/>
+        <copy file="${install.src.dir}/${akka.server.src.dir}/install.xml" overwrite="yes" preservelastmodified="true"
+              todir="${tumri.component.home}/install/${akka.server.src.dir}"/>
+        <copy file="${install.src.dir}/${akka.server.src.dir}/install.properties" overwrite="yes" preservelastmodified="true"
+              todir="${tumri.component.home}/install/${akka.server.src.dir}"/>
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="uninstall"
+            depends="">
+        <delete dir="${akka-server.home}"/>
+    </target>
+
+    <!-- ****************************************************************** -->
+    <!-- Input parameter: The following parameter or parameters below is/are passed from the top-level install scripts.
+           install.component.dir: ${tumri.home.dir}/${tumri.component}/${tumri.component}-{tumri.component.version}
+   -->
+    <target name="install-akka-server"
+            depends=""
+            description="Install Akka server component.">
+        <antcall target="install">
+            <param name="tumri.component.home" value="${install.component.dir}"/>
+            <param name="akka.server.home" value="${install.component.dir}/${akka.server.dir.name}"/>
+        </antcall>
+    </target>
+
+    <!-- ****************************************************************** -->
+    <!-- Input parameter: The following parameter or parameters below is/are passed from the top-level install scripts.
+           install.component.dir: ${tumri.home.dir}/${tumri.component}/${tumri.component}-{tumri.component.version}
+   -->
+    <target name="uninstall-akka-server"
+            depends=""
+            description="Uninstall Akka server component.">
+        <antcall target="uninstall">
+            <param name="tumri.component.home" value="${install.component.dir}"/>
+            <param name="akka-server.home" value="${install.component.dir}/${akka-server.dir.name}"/>
+        </antcall>
+    </target>
+
+    <!-- ****************************************************************** -->
+
+</project>

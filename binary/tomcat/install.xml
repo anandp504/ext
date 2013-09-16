@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<project name="tomcat" default="install-tomcat" basedir=".">
+
+	<property name="install.src.dir" value="${basedir}"/>	
+	<loadproperties srcfile="${install.src.dir}/tomcat5/install.properties"/>
+
+	<!-- ****************************************************************** -->
+
+	<target name="init"
+			depends="">
+	</target>
+	
+	<!-- ****************************************************************** -->
+
+	<target name="help"
+			description="Provide help information.">		
+	</target>
+
+	<!-- ****************************************************************** -->
+	
+    <target name="install"
+    		depends="">
+		<!-- Installing tomcat -->		
+        <mkdir dir="${tomcat.home}"/>					<!-- /opt/Tumri/<component>/<component>-<version>/tomcat5 -->
+        <gunzip src="${basedir}/${tomcat.dir.name}/${tomcat.filename.dest}"/>
+        <untar src="${basedir}/${tomcat.dir.name}/${tomcat.name}.tar" dest="${tumri.component.home}"/>	<!-- /opt/Tumri/<component>/<component>-<version> -->
+        <delete file="${basedir}/${tomcat.dir.name}/${tomcat.name}.tar"/>
+		<move todir="${tumri.component.home}/${tomcat.dir.name}">
+    		<fileset dir="${tumri.component.home}/${tomcat.name}"/>
+		</move>
+        <delete file="${tomcat.home}/LICENSE"/>
+        <delete file="${tomcat.home}/RELEASE-NOTES"/>
+        <delete file="${tomcat.home}/NOTICE"/>
+        <delete file="${tomcat.home}/RUNNING.txt"/>
+        <delete dir="${tomcat.home}/webapps/ROOT"/>
+        <delete dir="${tomcat.home}/webapps/balancer"/>
+        <delete dir="${tomcat.home}/webapps/jsp-examples"/>
+        <delete dir="${tomcat.home}/webapps/servlets-examples"/>
+        <delete dir="${tomcat.home}/webapps/tomcat-docs"/>
+        <delete dir="${tomcat.home}/webapps/webdav"/>
+        <delete file="${tomcat.home}/conf/server.xml"/>
+		<chmod perm="+x">
+            <fileset dir="${tomcat.home}/bin">
+				<include name="relink"/>
+				<include name="catalina.sh"/>
+				<include name="setclasspath.sh"/>
+            </fileset>
+        </chmod>        
+        
+        <!-- Copy installation scripts. -->
+        <mkdir dir="${tumri.component.home}/install/${tomcat.dir.name}"/>
+        <copy file="${install.src.dir}/${tomcat.dir.name}/install.xml" overwrite="yes" preservelastmodified="true"
+        	todir="${tumri.component.home}/install/${tomcat.dir.name}"/>
+        <copy file="${install.src.dir}/${tomcat.dir.name}/install.properties" overwrite="yes" preservelastmodified="true"
+        	todir="${tumri.component.home}/install/${tomcat.dir.name}"/>
+	</target>
+
+	<!-- ****************************************************************** -->
+
+    <target name="uninstall" 
+			depends="">
+        <delete dir="${tomcat.home}"/>
+    </target>
+    
+	<!-- ****************************************************************** -->
+	<!-- Input parameter: The following parameter or parameters below is/are passed from the top-level install scripts.
+			install.component.dir: ${tumri.home.dir}/${tumri.component}/${tumri.component}-{tumri.component.version}
+	-->
+	<target name="install-tomcat"
+			depends=""
+			description="Install Tomcat component.">
+		<antcall target="install">
+			<param name="tumri.component.home" value="${install.component.dir}"/>
+			<param name="tomcat.home" value="${install.component.dir}/${tomcat.dir.name}"/>		
+		</antcall>
+	</target>
+   
+   	<!-- ****************************************************************** -->
+	<!-- Input parameter: The following parameter or parameters below is/are passed from the top-level install scripts.
+			install.component.dir: ${tumri.home.dir}/${tumri.component}/${tumri.component}-{tumri.component.version}
+	-->
+	<target name="uninstall-tomcat" 
+			depends=""
+			description="Uninstall Tomcat component.">
+		<antcall target="uninstall">
+			<param name="tumri.component.home" value="${install.component.dir}"/>
+			<param name="tomcat.home" value="${install.component.dir}/${tomcat.dir.name}"/>		
+		</antcall>
+	</target>
+
+	<!-- ****************************************************************** -->
+    
+</project>

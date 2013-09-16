@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<project name="terracotta-client" default="install-terracotta-client" basedir=".">
+
+	<property name="install.src.dir" value="${basedir}"/>	
+	<loadproperties srcfile="${install.src.dir}/terracotta-client/install.properties"/>
+
+	<!-- ****************************************************************** -->
+
+	<target name="init"
+			depends="">
+	</target>
+	
+	<!-- ****************************************************************** -->
+
+	<target name="help"
+			description="Provide help information.">		
+	</target>
+
+	<!-- ****************************************************************** -->
+	
+    <target name="install"
+    		depends="">
+		<!-- Installing terracotta client-->
+        <delete dir="${terracotta.client.home}" />
+        <mkdir dir="${terracotta.client.home}"/>
+        <untar src="${basedir}/${terracotta.client.dir.name}/${terracotta.client.filename.src}"
+               dest="${terracotta.client.base.path}/${terracotta.name}" compression="gzip"/>
+        <chmod perm="+x">
+            <fileset dir="${terracotta.client.base.path}/${terracotta.name}/platform/bin">
+				<include name="*.sh"/>
+            </fileset>
+        </chmod>
+	</target>
+
+	<!-- ****************************************************************** -->
+
+    <target name="uninstall" 
+			depends="">
+        <delete dir="${terracotta.client.home}"/>
+    </target>
+    
+	<!-- ****************************************************************** -->
+	<!-- Input parameter: The following parameter or parameters below is/are passed from the top-level install scripts.
+			install.component.dir: ${tumri.home.dir}/${tumri.component}/${tumri.component}-{tumri.component.version}
+	-->
+	<target name="install-terracotta-client"
+			depends=""
+			description="Install Terracotta client.">
+		<antcall target="install">
+			<param name="terracotta.client.home" value="${terracotta.client.base.path}/${terracotta.client.dir.name}"/>
+		</antcall>
+	</target>
+   
+   	<!-- ****************************************************************** -->
+	<!-- Input parameter: The following parameter or parameters below is/are passed from the top-level install scripts.
+			install.component.dir: ${tumri.home.dir}/${tumri.component}/${tumri.component}-{tumri.component.version}
+	-->
+	<target name="uninstall-terracotta-client"
+			depends=""
+			description="Uninstall Terracotta client.">
+		<antcall target="uninstall">
+			<param name="terracotta.client.home" value="${terracotta.client.base.path}/${terracotta.client.dir.name}"/>
+		</antcall>
+	</target>
+
+	<!-- ****************************************************************** -->
+    
+</project>

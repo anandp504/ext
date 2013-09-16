@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. -->
+<tc:tc-config xsi:schemaLocation="http://www.terracotta.org/schema/terracotta-5.xsd"
+              xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Extra terracotta config properties -->
+    <tc-properties>
+        <!-- Client does health checks for the server -->
+        <property name="l1.healthcheck.l2.ping.enabled" value="true"/>
+        <property name="l1.healthcheck.l2.ping.idletime" value="5000"/>
+        <property name="l1.healthcheck.l2.ping.interval" value="1000"/>
+        <property name="l1.healthcheck.l2.ping.probes" value="3"/>
+        <property name="l1.healthcheck.l2.socketConnect" value="true"/>
+        <property name="l1.healthcheck.l2.socketConnectTimeout" value="5"/>
+        <property name="l1.healthcheck.l2.socketConnectCount" value="10"/>
+    </tc-properties>
+
+    <servers>
+        <!-- Sets where the Terracotta server can be found. Replace the value of host with the server's IP address. -->
+        <server host="@cma.terracotta.server1.url@" name="CMACacheServer1">
+            <dso>
+                <client-reconnect-window>120</client-reconnect-window>
+                <persistence>
+                    <mode>permanent-store</mode>
+                </persistence>
+            </dso>
+            <data>/opt/Tumri/terracotta-server/data</data>
+            <logs>/opt/Tumri/terracotta-server/logs</logs>
+            <statistics>/opt/Tumri/terracotta-server/server-statistics</statistics>
+        </server>
+        <!-- If using a standby Terracotta server, also referred to as an ACTIVE-PASSIVE configuration, add the second server here.
+          <server host="server.2.ip.address" name="Server2">
+            <data>%(user.home)/terracotta/server-data</data>
+            <logs>%(user.home)/terracotta/server-logs</logs>
+        </server>-->
+        <!-- If using more than one server, add an <ha> section. -->
+        <ha>
+            <mode>networked-active-passive</mode>
+            <networked-active-passive>
+                <election-time>5</election-time>
+            </networked-active-passive>
+        </ha>
+    </servers>
+
+    <system>
+        <configuration-model>production</configuration-model>
+    </system>
+
+    <clients>
+        <!-- Sets where the generated client logs are saved on clients. Note that the exact location of Terracotta
+         logs on client machines may vary based on the value of user.home and the local disk layout. -->
+        <logs>/opt/Tumri/terracotta-client/logs</logs>
+        <modules>
+            <module name="tim-apache-collections-3.1" version="1.3.1"/>
+            <module name="tim-ehcache-2.x" version="1.7.1"/>
+            <module name="tim-ibatis-2.2.0" version="1.6.2"/>
+            <module name="tim-quartz-1.8" version="2.0.0"/>
+            <module name="tim-tomcat-5.5" version="2.2.2"/>
+            <module name="tim-wan-collections" version="1.2.1"/>
+            <module name="tim-synchronizedcollection" version="2.7.1"/>
+            <module name="tim-synchronizedmap" version="2.7.1"/>
+            <module name="tim-synchronizedset" version="2.7.1"/>
+            <module name="tim-synchronizedsortedmap" version="2.7.1"/>
+            <module name="tim-synchronizedsortedset" version="2.7.1"/>
+            <module name="tim-maps" version="1.4.1"/>
+            <module name="tim-session-ui" version="2.2.2"/>
+            <module group-id="org.terracotta.toolkit" name="terracotta-toolkit-1.2" version="3.1.0"/>
+        </modules>
+        <dso>
+            <debugging>
+                <instrumentation-logging>
+                    <class>@enable.debug.log@</class>
+                    <roots>@enable.debug.log@</roots>
+                    <locks>@enable.debug.log@</locks>
+                    <transient-root>@enable.debug.log@</transient-root>
+                    <distributed-methods>@enable.debug.log@</distributed-methods>
+                </instrumentation-logging>
+                <runtime-logging>
+                    <non-portable-dump>@enable.debug.log@</non-portable-dump>
+                    <lock-debug>@enable.debug.log@</lock-debug>
+                    <wait-notify-debug>@enable.debug.log@</wait-notify-debug>
+                    <distributed-method-debug>@enable.debug.log@</distributed-method-debug>
+                </runtime-logging>
+                <runtime-output-options>
+                    <auto-lock-details>@enable.debug.log@</auto-lock-details>
+                </runtime-output-options>
+            </debugging>
+        </dso>
+    </clients>
+
+    <application>
+        <dso>
+            <additional-boot-jar-classes>
+                <include>java.util.HashSet</include>
+                <include>java.util.ArrayList</include>
+                <include>java.util.HashMap</include>
+                <include>java.util.Collections</include>
+            </additional-boot-jar-classes>
+
+            <app-groups>
+                <app-group name="TumriCampaignManagerClients">
+                    <web-application>tc</web-application>
+                    <web-application>tcm</web-application>
+                </app-group>
+            </app-groups>
+
+            <instrumented-classes>
+                <include>
+                    <class-expression>com.ibatis.sqlmap.engine.cache.CacheKey</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>org.apache.tomcat.dbcp.dbcp.DelegatingPreparedStatement</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>org.apache.tomcat.dbcp.dbcp.DelegatingStatement</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>org.apache.tomcat.dbcp.dbcp.AbandonedTrace</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.mysql.jdbc.ServerPreparedStatement</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.mysql.jdbc.PreparedStatement</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.mysql.jdbc.Statement</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.ibatis.sqlmap.engine.mapping.result.ResultMap</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.ibatis.sqlmap.engine.cache.CacheModel</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.tumri.cma.cache.EhCacheController</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.mysql.jdbc.Field</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.ibatis.sqlmap.engine.mapping.result.ResultMapping</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.tumri.cma.domain.TagProperty</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.mysql.jdbc.ServerPreparedStatement$BindValue</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+                    <class-expression>com.tumri.cma.domain.*</class-expression>
+                    <honor-transient>true</honor-transient>
+                </include>
+                <include>
+		           <class-expression>com.tumri.cma.misc.TSpecMultiValueProperties</class-expression>
+		           <honor-transient>true</honor-transient>
+        	 	</include>
+        	 	<include>
+           			<class-expression>org.apache.tomcat.dbcp.dbcp.DelegatingResultSet</class-expression>
+           			<honor-transient>true</honor-transient>
+		        </include>
+            </instrumented-classes>
+
+            <transient-fields>
+                <field-name>org.apache.tomcat.dbcp.dbcp.DelegatingPreparedStatement._stmt</field-name>
+                <field-name>org.apache.tomcat.dbcp.dbcp.DelegatingStatement._conn</field-name>
+                <field-name>org.apache.tomcat.dbcp.dbcp.AbandonedTrace.config</field-name>
+                <field-name>com.mysql.jdbc.Statement.results</field-name>
+                <field-name>com.mysql.jdbc.Statement.connection</field-name>
+                <field-name>com.mysql.jdbc.Statement.charConverter</field-name>
+                <field-name>com.ibatis.sqlmap.engine.mapping.result.ResultMap.remappableResultMappings</field-name>
+                <field-name>com.ibatis.sqlmap.engine.transaction.BaseTransactionConfig.dataSource</field-name>
+                <field-name>com.mysql.jdbc.Field.connection</field-name>
+                <field-name>com.tumri.cma.cache.EhCacheController.cacheManager</field-name>
+                <field-name>com.ibatis.sqlmap.engine.type.CustomTypeHandler.callback</field-name>
+                <field-name>java.util.Calendar.zone</field-name>
+                <field-name>org.apache.tomcat.dbcp.dbcp.DelegatingResultSet._res</field-name>
+            </transient-fields>
+
+            <locks>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.ibatis.sqlmap.engine.cache.CacheModel.getObject(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.ibatis.sqlmap.engine.cache.CacheModel.flush(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.tumri.cma.domain.*..*(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.ibatis.sqlmap.engine.scope.SessionScope.decrementRequestStackDepth(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.ibatis.sqlmap.engine.scope.SessionScope.incrementRequestStackDepth(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.ArrayList.clear()</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.ArrayList.add*(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.ArrayList.remove(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* org.apache.tomcat.dbcp.dbcp.DelegatingStatement.close()</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.HashMap.clear()</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.ibatis.sqlmap.engine.mapping.result.ResultMap.setResultMappingList(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.ArrayList.set(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.AbstractList$ListItr.set(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* java.util.Collections.sort(..)</method-expression>
+                    <lock-level>read</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.mysql.jdbc.ServerPreparedStatement.getBinding(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.mysql.jdbc.ServerPreparedStatement.set*(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.mysql.jdbc.Statement.clearWarnings(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* com.mysql.jdbc.PreparedStatement.execute(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* org.apache.tomcat.dbcp.dbcp.AbandonedTrace.setLastUsed(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* org.apache.tomcat.dbcp.dbcp.DelegatingStatement.getResultSet(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+                <autolock auto-synchronized="true">
+                    <method-expression>* org.apache.tomcat.dbcp.dbcp.DelegatingResultSet.close(..)</method-expression>
+                    <lock-level>write</lock-level>
+                </autolock>
+            </locks>
+
+        </dso>
+    </application>
+
+</tc:tc-config>
